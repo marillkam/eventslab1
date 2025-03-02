@@ -1,6 +1,6 @@
 ﻿namespace eventslab1
 {
-    partial class Form1
+    partial class EventManagementForm
     {
         /// <summary>
         /// Обязательная переменная конструктора.

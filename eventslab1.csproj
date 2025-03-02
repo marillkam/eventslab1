@@ -72,11 +72,11 @@
     </Compile>
     <Compile Include="Event.cs" />
     <Compile Include="EventManager.cs" />
-    <Compile Include="Form1.cs">
+    <Compile Include="EventManagementForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Form1.Designer.cs">
-      <DependentUpon>Form1.cs</DependentUpon>
+    <Compile Include="EventManagementForm.Designer.cs">
+      <DependentUpon>EventManagementForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
