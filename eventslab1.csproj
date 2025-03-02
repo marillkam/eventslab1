@@ -52,6 +52,12 @@
     <Compile Include="CreateEventForm.Designer.cs">
       <DependentUpon>CreateEventForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="DeleteEventForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DeleteEventForm.Designer.cs">
+      <DependentUpon>DeleteEventForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="EditEventForm.cs">
       <SubType>Form</SubType>
     </Compile>
