@@ -48,6 +48,7 @@ namespace eventslab1
                 if (eventComboBox.SelectedIndex >= 0)
                 {
                     events.RemoveAt(eventComboBox.SelectedIndex);
+                    MessageBox.Show("Событие успешно удалено", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     this.DialogResult = DialogResult.OK;
                     this.Close();
                 }

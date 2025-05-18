@@ -1,47 +1,65 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace eventslab1
 {
-    public partial class   DisplayEventsForm : Form
+    public partial class DisplayEventsForm : Form
     {
-        private List<Event> events;
-        private TextBox eventsTextBox;
+        private readonly List<Event> events;
+        private TextBox eventsTextBox; // Убрали readonly
+        private Button closeButton;    // Убрали readonly
 
         public DisplayEventsForm(List<Event> events)
         {
             this.events = events;
-            this.Text = "Все события";
-            this.Size = new System.Drawing.Size(500, 400);
+            InitializeComponent();
             InitializeControls();
         }
 
         private void InitializeControls()
         {
+            // Настройка формы
+            this.Text = "Все события";
+            this.Size = new Size(600, 500);
+            this.StartPosition = FormStartPosition.CenterParent;
+            this.FormBorderStyle = FormBorderStyle.FixedDialog;
+            this.MaximizeBox = false;
+
+            // Инициализация текстового поля
             eventsTextBox = new TextBox
             {
-                Location = new System.Drawing.Point(10, 10),
-                Size = new System.Drawing.Size(480, 380),
                 Multiline = true,
-                ScrollBars = ScrollBars.Both
+                ReadOnly = true,
+                ScrollBars = ScrollBars.Vertical,
+                Dock = DockStyle.Top,
+                Height = 400,
+                Font = new Font("Consolas", 10)
             };
 
+            // Инициализация кнопки
+            closeButton = new Button
+            {
+                Text = "Закрыть",
+                DialogResult = DialogResult.OK,
+                Dock = DockStyle.Bottom,
+                Height = 40
+            };
+
+            // Заполнение текстового поля
             var allEvents = new StringBuilder();
             foreach (var e in events)
             {
                 allEvents.AppendLine(e.ToString());
-                allEvents.AppendLine(new string('-', 30));
+                allEvents.AppendLine(new string('-', 50));
             }
             eventsTextBox.Text = allEvents.ToString();
 
+            // Добавление элементов на форму
             this.Controls.Add(eventsTextBox);
+            this.Controls.Add(closeButton);
         }
     }
 }

@@ -1,147 +1,144 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace eventslab1
 {
     public partial class CreateEventForm : Form
     {
-        private Label nameLabel;
-        private TextBox nameTextBox;
-        private Label startTimeLabel;
-        private DateTimePicker startTimePicker;
-        private Label endTimeLabel;
-        private DateTimePicker endTimePicker;
-        private Label locationLabel;
-        private TextBox locationTextBox;
-        private Label descriptionLabel;
-        private TextBox descriptionTextBox;
-        private Button createButton;
-        private Button cancelButton;
+        public string EventName => txtName.Text;
+        public DateTime StartTime => dtStart.Value;
+        public DateTime EndTime => dtEnd.Value;
+        public string EventLocation => txtLocation.Text;
+        public string EventDescription => txtDescription.Text;
 
-        public string Name { get; private set; }
-        public DateTime StartTime { get; private set; }
-        public DateTime EndTime { get; private set; }
-        public string Location { get; private set; }
-        public string Description { get; private set; }
+        private readonly TextBox txtName = new TextBox();
+        private readonly DateTimePicker dtStart = new DateTimePicker();
+        private readonly DateTimePicker dtEnd = new DateTimePicker();
+        private readonly TextBox txtLocation = new TextBox();
+        private readonly TextBox txtDescription = new TextBox();
+        private readonly Button btnCreate = new Button();
+        private readonly Button btnCancel = new Button();
 
         public CreateEventForm()
         {
-            this.Text = "Создать событие";
-            this.Size = new System.Drawing.Size(300, 400);
+            InitializeComponent();
             InitializeControls();
         }
 
         private void InitializeControls()
         {
-            nameLabel = new Label
+            // Настройка формы
+            this.Text = "Создание нового события";
+            this.ClientSize = new Size(350, 400);
+            this.FormBorderStyle = FormBorderStyle.FixedDialog;
+            this.StartPosition = FormStartPosition.CenterParent;
+            this.MaximizeBox = false;
+            this.MinimizeBox = false;
+
+            // Название события
+            var lblName = new Label
             {
-                Text = "Название:",
-                Location = new System.Drawing.Point(10, 10)
-            };
-            nameTextBox = new TextBox
-            {
-                Location = new System.Drawing.Point(10, 30),
-                Size = new System.Drawing.Size(260, 20)
+                Text = "Название события:",
+                Location = new Point(20, 20),
+                AutoSize = true
             };
 
-            startTimeLabel = new Label
+            txtName.Location = new Point(20, 45);
+            txtName.Size = new Size(300, 20);
+
+            // Время начала
+            var lblStart = new Label
             {
-                Text = "Время начала:",
-                Location = new System.Drawing.Point(10, 60)
-            };
-            startTimePicker = new DateTimePicker
-            {
-                Location = new System.Drawing.Point(10, 80),
-                Size = new System.Drawing.Size(260, 20)
+                Text = "Дата и время начала:",
+                Location = new Point(20, 80),
+                AutoSize = true
             };
 
-            endTimeLabel = new Label
+            dtStart.Location = new Point(20, 105);
+            dtStart.Size = new Size(300, 20);
+            dtStart.Format = DateTimePickerFormat.Custom;
+            dtStart.CustomFormat = "dd.MM.yyyy HH:mm";
+            dtStart.ShowUpDown = true;
+
+            // Время окончания
+            var lblEnd = new Label
             {
-                Text = "Время окончания:",
-                Location = new System.Drawing.Point(10, 110)
-            };
-            endTimePicker = new DateTimePicker
-            {
-                Location = new System.Drawing.Point(10, 130),
-                Size = new System.Drawing.Size(260, 20)
+                Text = "Дата и время окончания:",
+                Location = new Point(20, 140),
+                AutoSize = true
             };
 
-            locationLabel = new Label
+            dtEnd.Location = new Point(20, 165);
+            dtEnd.Size = new Size(300, 20);
+            dtEnd.Format = DateTimePickerFormat.Custom;
+            dtEnd.CustomFormat = "dd.MM.yyyy HH:mm";
+            dtEnd.ShowUpDown = true;
+            dtEnd.Value = dtStart.Value.AddHours(1); // По умолчанию +1 час от начала
+
+            // Местоположение
+            var lblLocation = new Label
             {
-                Text = "Место:",
-                Location = new System.Drawing.Point(10, 160)
-            };
-            locationTextBox = new TextBox
-            {
-                Location = new System.Drawing.Point(10, 180),
-                Size = new System.Drawing.Size(260, 20)
+                Text = "Местоположение:",
+                Location = new Point(20, 200),
+                AutoSize = true
             };
 
-            descriptionLabel = new Label
+            txtLocation.Location = new Point(20, 225);
+            txtLocation.Size = new Size(300, 20);
+
+            // Описание
+            var lblDescription = new Label
             {
                 Text = "Описание:",
-                Location = new System.Drawing.Point(10, 210)
-            };
-            descriptionTextBox = new TextBox
-            {
-                Location = new System.Drawing.Point(10, 230),
-                Size = new System.Drawing.Size(260, 100),
-                Multiline = true
+                Location = new Point(20, 250),
+                AutoSize = true
             };
 
-            createButton = new Button
-            {
-                Text = "Создать",
-                Location = new System.Drawing.Point(10, 340),
-                Size = new System.Drawing.Size(100, 25)
-            };
-            createButton.Click += (sender, e) =>
-            {
-                if (string.IsNullOrWhiteSpace(nameTextBox.Text))
-                {
-                    MessageBox.Show("Пожалуйста, введите название события.");
-                    return;
-                }
+            txtDescription.Location = new Point(20, 275);
+            txtDescription.Size = new Size(300, 60);
+            txtDescription.Multiline = true;
 
-                Name = nameTextBox.Text;
-                StartTime = startTimePicker.Value;
-                EndTime = endTimePicker.Value;
-                Location = locationTextBox.Text;
-                Description = descriptionTextBox.Text;
-                this.DialogResult = DialogResult.OK;
-                this.Close();
-            };
+            // Кнопка Создать
+            btnCreate.Text = "Создать";
+            btnCreate.DialogResult = DialogResult.OK;
+            btnCreate.Location = new Point(120, 350);
+            btnCreate.Size = new Size(100, 30);
+            btnCreate.Click += (s, e) => ValidateForm();
 
-            cancelButton = new Button
-            {
-                Text = "Отмена",
-                Location = new System.Drawing.Point(170, 340),
-                Size = new System.Drawing.Size(100, 25)
-            };
-            cancelButton.Click += (sender, e) =>
-            {
-                this.Close();
-            };
+            // Кнопка Отмена
+            btnCancel.Text = "Отмена";
+            btnCancel.DialogResult = DialogResult.Cancel;
+            btnCancel.Location = new Point(230, 350);
+            btnCancel.Size = new Size(100, 30);
 
-            this.Controls.Add(nameLabel);
-            this.Controls.Add(nameTextBox);
-            this.Controls.Add(startTimeLabel);
-            this.Controls.Add(startTimePicker);
-            this.Controls.Add(endTimeLabel);
-            this.Controls.Add(endTimePicker);
-            this.Controls.Add(locationLabel);
-            this.Controls.Add(locationTextBox);
-            this.Controls.Add(descriptionLabel);
-            this.Controls.Add(descriptionTextBox);
-            this.Controls.Add(createButton);
-            this.Controls.Add(cancelButton);
+            // Добавление элементов на форму
+            this.Controls.AddRange(new Control[] {
+                lblName, txtName,
+                lblStart, dtStart,
+                lblEnd, dtEnd,
+                lblLocation, txtLocation,
+                lblDescription, txtDescription,
+                btnCreate, btnCancel
+            });
+        }
+
+        private void ValidateForm()
+        {
+            if (string.IsNullOrWhiteSpace(txtName.Text))
+            {
+                MessageBox.Show("Введите название события", "Ошибка",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                this.DialogResult = DialogResult.None;
+                return;
+            }
+
+            if (dtStart.Value >= dtEnd.Value)
+            {
+                MessageBox.Show("Время окончания должно быть позже времени начала", "Ошибка",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                this.DialogResult = DialogResult.None;
+            }
         }
     }
 }

@@ -19,6 +19,10 @@ namespace eventslab1
         public Event(string name, DateTime startTime, DateTime endTime, string location,
 string description)
         {
+            if (startTime >= endTime)
+            {
+                throw new ArgumentException("Время начала события должно быть раньше времени окончания.");
+            }
             Name = name;
             StartTime = startTime;
             EndTime = endTime;
@@ -30,18 +34,18 @@ string description)
         public void SetReminder()
         {
             ReminderSet = true;
-            MessageBox.Show("Напоминание установлено.");
+            //MessageBox.Show("Напоминание установлено.");
         }
 
         public void RemoveReminder()
         {
             ReminderSet = false;
-            MessageBox.Show("Напоминание снято.");
+            //MessageBox.Show("Напоминание снято.");
         }
 
         public override string ToString()
         {
-            return $"Событие: {Name}\nВремя: {StartTime.ToString("dd.MM.yyyy HH:mm")} - { EndTime.ToString("dd.MM.yyyy HH:mm")}\nМесто: { Location}\nОписание:{ Description}\nНапоминание: { (ReminderSet ? "Да" : "Нет")}            "; 
+            return $"Событие: {Name}\nВремя: {StartTime.ToString("dd.MM.yyyy HH:mm")} - {EndTime.ToString("dd.MM.yyyy HH:mm")}\nМесто: {Location}\nОписание: {Description}\nНапоминание: {(ReminderSet ? "Да" : "Нет")}";
         }
     }
 }

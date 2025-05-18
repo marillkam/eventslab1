@@ -1,119 +1,108 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 
 namespace eventslab1
 {
     public class EventManager
     {
-        private List<Event> events = new List<Event>();
-        private ListView listView;
+        private readonly IEventView _view;
+        public List<Event> Events { get; } = new List<Event>();
 
-        public EventManager(ListView listView)
+        public EventManager(IEventView view)
         {
-            this.listView = listView;
-            LoadEvents();
+            _view = view;
         }
 
-        private void LoadEvents()
+        public void CreateEvent(string name, DateTime startTime, DateTime endTime, string location, string description)
         {
-            listView.Items.Clear();
-            foreach (var e in events)
+            try
             {
-                listView.Items.Add(new ListViewItem(new[] { e.Name,
-e.StartTime.ToString("dd.MM.yyyy HH:mm"), e.Location }));
+                var newEvent = new Event(name, startTime, endTime, location, description);
+                Events.Add(newEvent);
+                UpdateView();
+                _view.ShowMessage("Событие успешно создано");
+            }
+            catch (Exception ex)
+            {
+                _view.ShowMessage($"Ошибка: {ex.Message}");
             }
         }
 
-        public void CreateEvent()
+        public void EditEvent(int index, string name, DateTime startTime, DateTime endTime, string location, string description)
         {
-            var createEventForm = new CreateEventForm();
-            createEventForm.ShowDialog();
-            if (createEventForm.DialogResult == DialogResult.OK)
+            if (index < 0 || index >= Events.Count)
             {
-                var newEvent = new Event(
-                    createEventForm.Name,
-                    createEventForm.StartTime,
-                    createEventForm.EndTime,
-                    createEventForm.Location,
-                    createEventForm.Description);
-                events.Add(newEvent);
-                LoadEvents();
-                MessageBox.Show("Событие создано.");
-            }
-        }
-
-        public void EditEvent()
-        {
-            if (events.Count == 0)
-            {
-                MessageBox.Show("Список событий пуст.");
+                _view.ShowMessage("Неверный индекс события");
                 return;
             }
 
-            var editEventForm = new EditEventForm(events);
-            editEventForm.ShowDialog();
-            if (editEventForm.DialogResult == DialogResult.OK)
+            try
             {
-                LoadEvents();
+                Events[index] = new Event(name, startTime, endTime, location, description);
+                UpdateView();
+                _view.ShowMessage("Событие успешно изменено");
+            }
+            catch (Exception ex)
+            {
+                _view.ShowMessage($"Ошибка: {ex.Message}");
             }
         }
 
-        public void DeleteEvent()
+        public void DeleteEvent(int index)
         {
-            if (events.Count == 0)
+            if (index < 0 || index >= Events.Count)
             {
-                MessageBox.Show("Список событий пуст.");
+                _view.ShowMessage("Неверный индекс события");
                 return;
             }
 
-            var deleteEventForm = new DeleteEventForm(events);
-            deleteEventForm.ShowDialog();
-            if (deleteEventForm.DialogResult == DialogResult.OK)
-            {
-                LoadEvents();
-            }
+            Events.RemoveAt(index);
+            UpdateView();
+            _view.ShowMessage("Событие успешно удалено");
         }
 
-        public void SetEventReminder()
+        public void SetReminder(int index)
         {
-            if (events.Count == 0)
+            if (index < 0 || index >= Events.Count)
             {
-                MessageBox.Show("Список событий пуст.");
+                _view.ShowMessage("Неверный индекс события");
                 return;
             }
 
-            var setReminderForm = new SetReminderForm(events);
-            setReminderForm.ShowDialog();
-            if (setReminderForm.DialogResult == DialogResult.OK)
-            {
-                LoadEvents();
-            }
+            Events[index].SetReminder();
+            UpdateView();
+            _view.ShowMessage("Напоминание установлено");
         }
 
-        public void RemoveEventReminder()
+        public void RemoveReminder(int index)
         {
-            if (events.Count == 0)
+            if (index < 0 || index >= Events.Count)
             {
-                MessageBox.Show("Список событий пуст.");
+                _view.ShowMessage("Неверный индекс события");
                 return;
             }
 
-            var removeReminderForm = new RemoveReminderForm(events);
-            removeReminderForm.ShowDialog();
-            if (removeReminderForm.DialogResult == DialogResult.OK)
-            {
-                LoadEvents();
-            }
+            Events[index].RemoveReminder();
+            UpdateView();
+            _view.ShowMessage("Напоминание удалено");
         }
 
-        public void DisplayEvents()
+        public void LoadEvents()
         {
-            var displayEventsForm = new DisplayEventsForm(events);
-            displayEventsForm.ShowDialog();
+            UpdateView();
+        }
+
+        private void UpdateView()
+        {
+            _view.ClearEvents();
+            foreach (var e in Events)
+            {
+                _view.AddEvent(
+                    e.Name,
+                    $"{e.StartTime:dd.MM.yyyy HH:mm} - {e.EndTime:dd.MM.yyyy HH:mm}",
+                    e.Location
+                );
+            }
         }
     }
 }

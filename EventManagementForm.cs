@@ -1,104 +1,209 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
+﻿// EventManagementForm.cs
+using System;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace eventslab1
 {
-    public partial class EventManagementForm : Form
+    public partial class EventManagementForm : Form, IEventView
     {
-        private EventManager eventManager;
-        private ListView listView;
-        private Button createEventButton;
-        private Button editEventButton;
-        private Button deleteEventButton;
-        private Button setReminderButton;
-        private Button removeReminderButton;
-        private Button displayEventsButton;
+        private readonly EventManager _eventManager;
+        private readonly ListView listView;
+        private readonly Button createEventButton;
+        private readonly Button editEventButton;
+        private readonly Button deleteEventButton;
+        private readonly Button setReminderButton;
+        private readonly Button removeReminderButton;
+        //private readonly Button displayEventsButton;
 
         public EventManagementForm()
         {
-            this.Text = "Управление встречами и мероприятиями";
-            this.Width = 500;
-            this.Height = 400;
-            CreateControls();
-            eventManager = new EventManager(listView);
+            InitializeComponent();
+
+            // Инициализация элементов управления
+            listView = new ListView();
+            createEventButton = new Button();
+            editEventButton = new Button();
+            deleteEventButton = new Button();
+            setReminderButton = new Button();
+            removeReminderButton = new Button();
+            //displayEventsButton = new Button();
+
+            _eventManager = new EventManager(this);
+            SetupControls();
         }
 
-        private void CreateControls()
+        private void SetupControls()
         {
-            listView = new ListView
-            {
-                Location = new System.Drawing.Point(10, 10),
-                Size = new System.Drawing.Size(480, 300),
-                View = View.Details,
-                FullRowSelect = true
-            };
+            // Настройка формы
+            this.Text = "Управление встречами и мероприятиями";
+            this.Size = new Size(450, 450);
+
+            // Настройка ListView
+            listView.Dock = DockStyle.Top;
+            listView.Height = 300;
+            listView.View = View.Details;
+            listView.FullRowSelect = true;
             listView.Columns.Add("Название", 150);
-            listView.Columns.Add("Время", 150);
+            listView.Columns.Add("Время", 200);
             listView.Columns.Add("Место", 100);
 
-            createEventButton = new Button
+            // Настройка кнопок
+            var buttonPanel = new FlowLayoutPanel
             {
-                Location = new System.Drawing.Point(10, 320),
-                Text = "Создать событие",
-                Size = new System.Drawing.Size(100, 25)
+                Dock = DockStyle.Bottom,
+                FlowDirection = FlowDirection.LeftToRight,
+                Height = 40
             };
-            createEventButton.Click += (sender, e) => eventManager.CreateEvent();
+            var viewAllButton = new Button
+            {
+                Text = "Просмотреть все",
+                Location = new Point(284, 320),
+                Size = new Size(120, 25)
+            };
+            viewAllButton.Click += ViewAllButton_Click;
 
-            editEventButton = new Button
-            {
-                Location = new System.Drawing.Point(120, 320),
-                Text = "Редактировать",
-                Size = new System.Drawing.Size(80, 25)
-            };
-            editEventButton.Click += (sender, e) => eventManager.EditEvent();
+            // Добавляем кнопку на форму
+            this.Controls.Add(viewAllButton);
 
-            deleteEventButton = new Button
-            {
-                Location = new System.Drawing.Point(210, 320),
-                Text = "Удалить",
-                Size = new System.Drawing.Size(80, 25)
-            };
-            deleteEventButton.Click += (sender, e) => eventManager.DeleteEvent();
+            createEventButton.Text = "Создать";
+            createEventButton.Click += CreateEventButton_Click;
 
-            setReminderButton = new Button
-            {
-                Location = new System.Drawing.Point(300, 320),
-                Text = "Напоминание",
-                Size = new System.Drawing.Size(100, 25)
-            };
-            setReminderButton.Click += (sender, e) => eventManager.SetEventReminder();
+            editEventButton.Text = "Редактир.";
+            editEventButton.Click += EditEventButton_Click;
 
-            removeReminderButton = new Button
-            {
-                Location = new System.Drawing.Point(410, 320),
-                Text = "Снять напоминание",
-                Size = new System.Drawing.Size(120, 25)
-            };
-            removeReminderButton.Click += (sender, e) =>
-eventManager.RemoveEventReminder();
+            deleteEventButton.Text = "Удалить";
+            deleteEventButton.Click += DeleteEventButton_Click;
 
-            displayEventsButton = new Button
+            setReminderButton.Text = "Напом.";
+            setReminderButton.Click += SetReminderButton_Click;
+
+            removeReminderButton.Text = "Снять напом.";
+            removeReminderButton.Click += RemoveReminderButton_Click;
+
+            //displayEventsButton.Text = "Обновить";
+            //displayEventsButton.Click += DisplayEventsButton_Click;
+
+            // Добавление элементов
+            buttonPanel.Controls.AddRange(new Control[]
             {
-                Location = new System.Drawing.Point(10, 350),
-                Text = "Отобразить все",
-                Size = new System.Drawing.Size(100, 25)
-            };
-            displayEventsButton.Click += (sender, e) => eventManager.DisplayEvents();
+                createEventButton,
+                editEventButton,
+                deleteEventButton,
+                setReminderButton,
+                removeReminderButton,
+                //displayEventsButton
+            });
 
             this.Controls.Add(listView);
-            this.Controls.Add(createEventButton);
-            this.Controls.Add(editEventButton);
-            this.Controls.Add(deleteEventButton);
-            this.Controls.Add(setReminderButton);
-            this.Controls.Add(removeReminderButton);
-            this.Controls.Add(displayEventsButton);
+            this.Controls.Add(buttonPanel);
         }
+
+        private void ViewAllButton_Click(object sender, EventArgs e)
+        {
+            // Создаем и показываем форму со всеми событиями
+            var displayForm = new DisplayEventsForm(_eventManager.Events);
+            displayForm.ShowDialog();
+        }
+        #region Реализация IEventView
+        public void ClearEvents()
+        {
+            listView.Items.Clear();
+        }
+
+        public void AddEvent(string name, string time, string location)
+        {
+            listView.Items.Add(new ListViewItem(new[] { name, time, location }));
+        }
+
+        public void ShowMessage(string message)
+        {
+            MessageBox.Show(message, "Информация", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+        #endregion
+
+        #region Обработчики событий
+        private void CreateEventButton_Click(object sender, EventArgs e)
+        {
+            var form = new CreateEventForm();
+            if (form.ShowDialog() == DialogResult.OK)
+            {
+                _eventManager.CreateEvent(
+                    form.EventName,
+                    form.StartTime,
+                    form.EndTime,
+                    form.EventLocation,
+                    form.EventDescription
+                );
+            }
+            form.Dispose();
+        }
+
+        private void EditEventButton_Click(object sender, EventArgs e)
+        {
+            if (listView.SelectedItems.Count == 0)
+            {
+                ShowMessage("Выберите событие для редактирования");
+                return;
+            }
+
+            int selectedIndex = listView.SelectedIndices[0];
+            var selectedEvent = _eventManager.Events[selectedIndex];
+
+            var form = new EditEventForm(selectedEvent);
+            if (form.ShowDialog() == DialogResult.OK)
+            {
+                _eventManager.EditEvent(
+                    selectedIndex,
+                    form.EventName,
+                    form.StartTime,
+                    form.EndTime,
+                    form.EventLocation,
+                    form.EventDescription
+                );
+            }
+            form.Dispose();
+        }
+
+        private void DeleteEventButton_Click(object sender, EventArgs e)
+        {
+            if (listView.SelectedItems.Count == 0)
+            {
+                ShowMessage("Выберите событие для удаления");
+                return;
+            }
+
+            if (MessageBox.Show("Удалить выбранное событие?", "Подтверждение",
+                MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+            {
+                _eventManager.DeleteEvent(listView.SelectedIndices[0]);
+            }
+        }
+
+        private void SetReminderButton_Click(object sender, EventArgs e)
+        {
+            if (listView.SelectedItems.Count == 0)
+            {
+                ShowMessage("Выберите событие для установки напоминания");
+                return;
+            }
+            _eventManager.SetReminder(listView.SelectedIndices[0]);
+        }
+
+        private void RemoveReminderButton_Click(object sender, EventArgs e)
+        {
+            if (listView.SelectedItems.Count == 0)
+            {
+                ShowMessage("Выберите событие для снятия напоминания");
+                return;
+            }
+            _eventManager.RemoveReminder(listView.SelectedIndices[0]);
+        }
+
+        //private void DisplayEventsButton_Click(object sender, EventArgs e)
+        //{
+        //    _eventManager.LoadEvents();
+        //}
+        #endregion
     }
 }
